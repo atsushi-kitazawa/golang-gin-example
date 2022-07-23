@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -25,6 +26,7 @@ func doMain() {
 	// add route
 	getExam1(r)
 	getExam2(r)
+	putExam(r)
 
 	r.Run(":8080")
 }
@@ -51,5 +53,19 @@ func getExam2(r *gin.Engine) {
 			c.AbortWithError(http.StatusInternalServerError, err)
 		}
 		c.String(http.StatusOK, fmt.Sprintf("%v", data))
+	})
+}
+
+func putExam(r *gin.Engine) {
+	r.PUT("/datas/:id", func(c *gin.Context) {
+		var json Data
+		if err := c.ShouldBindJSON(&json); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+		id, _ := strconv.Atoi(c.Param("id"))
+		json.Id = id
+		fmt.Printf("update data %v\n", json)
+		c.String(http.StatusNoContent, "")
 	})
 }
